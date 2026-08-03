@@ -1,3 +1,4 @@
+
 name: Build Mark-XLVI EXE
 
 on:
@@ -21,27 +22,37 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install core dependencies
+      - name: Install binary dependencies first
         run: |
-          pip install sounddevice pillow requests beautifulsoup4 numpy psutil send2trash qrcode[pil]
+          pip install --prefer-binary numpy pillow opencv-python pyautogui pyperclip mss psutil
 
-      - name: Install Google AI dependencies
+      - name: Install sounddevice
+        run: pip install sounddevice --prefer-binary
+
+      - name: Install Google AI packages
+        run: pip install google-genai google-generativeai --prefer-binary
+
+      - name: Install remaining dependencies
         run: |
-          pip install google-genai google-generativeai
+          pip install --prefer-binary `
+            requests `
+            beautifulsoup4 `
+            duckduckgo-search `
+            pygetwindow `
+            send2trash `
+            youtube-transcript-api `
+            python-pptx `
+            fastapi `
+            "uvicorn[standard]" `
+            cryptography `
+            python-multipart `
+            comtypes `
+            pycaw `
+            win10toast `
+            pywinauto `
+            "qrcode[pil]"
 
-      - name: Install web and media dependencies
-        run: |
-          pip install duckduckgo-search youtube-transcript-api python-pptx opencv-python mss
-
-      - name: Install Windows-specific dependencies
-        run: |
-          pip install comtypes pycaw win10toast pywinauto pyautogui pyperclip pygetwindow
-
-      - name: Install server dependencies
-        run: |
-          pip install fastapi "uvicorn[standard]" cryptography python-multipart
-
-      - name: Install Playwright
+      - name: Install playwright
         run: |
           pip install playwright
           playwright install chromium --with-deps
