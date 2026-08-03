@@ -19,6 +19,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Find main.py location
+        run: Get-ChildItem -Recurse -Filter "main.py" | Select-Object FullName
+
       - name: Upgrade pip
         run: python -m pip install --upgrade pip setuptools wheel
 
@@ -50,6 +53,10 @@ jobs:
 
       - name: Build EXE with PyInstaller
         run: |
+          $mainpy = Get-ChildItem -Recurse -Filter "main.py" | Select-Object -First 1
+          $projectDir = $mainpy.DirectoryName
+          Write-Host "Building from: $projectDir"
+          cd $projectDir
           pyinstaller `
             --noconfirm `
             --onedir `
@@ -91,5 +98,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Mark-XLVI-Windows
-          path: dist/Mark-XLVI/
+          path: "**/dist/Mark-XLVI/"
           retention-days: 30
