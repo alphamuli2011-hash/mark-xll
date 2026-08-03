@@ -22,37 +22,25 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install binary dependencies first
-        run: |
-          pip install --prefer-binary numpy pillow opencv-python pyautogui pyperclip mss psutil
+      - name: Install core dependencies
+        run: pip install sounddevice pillow requests beautifulsoup4 numpy psutil send2trash qrcode[pil]
 
-      - name: Install sounddevice
-        run: pip install sounddevice --prefer-binary
+      - name: Install Google AI dependencies
+        run: pip install google-genai google-generativeai
 
-      - name: Install Google AI packages
-        run: pip install google-genai google-generativeai --prefer-binary
+      - name: Install web and media dependencies
+        run: pip install duckduckgo-search youtube-transcript-api python-pptx opencv-python mss
 
-      - name: Install remaining dependencies
-        run: |
-          pip install --prefer-binary `
-            requests `
-            beautifulsoup4 `
-            duckduckgo-search `
-            pygetwindow `
-            send2trash `
-            youtube-transcript-api `
-            python-pptx `
-            fastapi `
-            "uvicorn[standard]" `
-            cryptography `
-            python-multipart `
-            comtypes `
-            pycaw `
-            win10toast `
-            pywinauto `
-            "qrcode[pil]"
+      - name: Install Windows-specific dependencies
+        run: pip install comtypes pycaw win10toast pywinauto pyautogui pyperclip pygetwindow
 
-      - name: Install playwright
+      - name: Install server dependencies
+        run: pip install fastapi "uvicorn[standard]" cryptography python-multipart
+
+      - name: Install PyQt6
+        run: pip install PyQt6
+
+      - name: Install Playwright
         run: |
           pip install playwright
           playwright install chromium --with-deps
@@ -88,10 +76,15 @@ jobs:
             --hidden-import "pycaw" `
             --hidden-import "win10toast" `
             --hidden-import "pywinauto" `
+            --hidden-import "PyQt6" `
+            --hidden-import "PyQt6.QtCore" `
+            --hidden-import "PyQt6.QtGui" `
+            --hidden-import "PyQt6.QtWidgets" `
             --collect-all "google.genai" `
             --collect-all "google.generativeai" `
             --collect-all "uvicorn" `
             --collect-all "fastapi" `
+            --collect-all "PyQt6" `
             main.py
 
       - name: Upload EXE as artifact
