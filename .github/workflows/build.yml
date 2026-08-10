@@ -65,6 +65,8 @@ jobs:
             --onedir `
             --windowed `
             --name "Mark-XLVI" `
+            --runtime-hook "utf8_hook.py" `
+            --runtime-hook "runtime_hook.py" `
             --add-data "config;config" `
             --add-data "core/prompt.txt;core" `
             --add-data "dashboard/static;dashboard/static" `
