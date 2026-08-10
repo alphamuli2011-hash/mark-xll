@@ -54,6 +54,37 @@ jobs:
       - name: Install PyInstaller
         run: pip install pyinstaller
 
+      - name: Create runtime hooks
+        run: |
+          $mainpy = Get-ChildItem -Recurse -Filter "main.py" | Select-Object -First 1
+          $projectDir = $mainpy.DirectoryName
+
+          Set-Content "$projectDir\utf8_hook.py" @"
+import os, sys
+os.environ['PYTHONUTF8'] = '1'
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+"@
+
+          Set-Content "$projectDir\runtime_hook.py" @"
+import subprocess, sys
+_orig_run = subprocess.run
+_orig_popen = subprocess.Popen
+_NO_WINDOW = 0x08000000
+def _patched_run(*args, **kwargs):
+    if sys.platform == 'win32':
+        kwargs.setdefault('creationflags', _NO_WINDOW)
+    return _orig_run(*args, **kwargs)
+def _patched_popen(*args, **kwargs):
+    if sys.platform == 'win32':
+        kwargs.setdefault('creationflags', _NO_WINDOW)
+    return _orig_popen(*args, **kwargs)
+subprocess.run = _patched_run
+subprocess.Popen = _patched_popen
+"@
+
       - name: Build EXE with PyInstaller
         run: |
           $mainpy = Get-ChildItem -Recurse -Filter "main.py" | Select-Object -First 1
