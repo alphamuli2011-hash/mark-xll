@@ -14,8 +14,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Unzip project files
-        run: Expand-Archive -Path "Mark-XLVI-main.zip" -DestinationPath "." -Force
+      - name: Find and extract zip
+        run: |
+          $zip = Get-ChildItem -Recurse -Filter "*.zip" | Select-Object -First 1
+          Write-Host "Found zip: $($zip.FullName)"
+          Expand-Archive -Path $zip.FullName -DestinationPath "." -Force
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -53,7 +56,10 @@ jobs:
 
       - name: Build EXE with PyInstaller
         run: |
-          cd Mark-XLVI-main
+          $mainpy = Get-ChildItem -Recurse -Filter "main.py" | Select-Object -First 1
+          $projectDir = $mainpy.DirectoryName
+          Write-Host "Building from: $projectDir"
+          cd $projectDir
           pyinstaller `
             --noconfirm `
             --onedir `
@@ -95,5 +101,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Mark-XLVI-Windows
-          path: "Mark-XLVI-main/dist/Mark-XLVI/"
+          path: "**/dist/Mark-XLVI/"
           retention-days: 30
